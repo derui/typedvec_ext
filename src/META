@@ -1,0 +1,7 @@
+name = "typedvec-ext"
+version = "0.1.0"
+description = "The Extra library for Typedvec"
+
+requires = "typedvec"
+archive(byte) = "typedvec-ext.cma"
+archive(native) = "typedvec-ext.cmxa"
