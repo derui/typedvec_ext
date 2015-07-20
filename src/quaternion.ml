@@ -8,8 +8,8 @@ type axis = Size.three A.s A.vec
 type angle = float
 
 type t = {
-  quot_axis: axis;
-  quot_angle: angle;
+  quat_axis: axis;
+  quat_angle: angle;
 }
 
 (* Constants. *)
@@ -17,18 +17,18 @@ let pi = 3.1415926535897232
 
 let epsilon = 0.00001
 
-let identity () = {quot_axis = A.Vec.make Size.three 0.0; quot_angle = 1.0}
+let identity () = {quat_axis = A.Vec.make Size.three 0.0; quat_angle = 1.0}
 
 let make ~angle ~axis () =
   let angle = angle /. 2.0 in
   let radian = pi /. 180.0 *. angle in
   let base_sin = sin radian  in
   let normal = A.Vec.normalize axis in
-  {quot_angle = cos radian;
-   quot_axis = A.Vec.scalar ~v:normal ~scale:base_sin
+  {quat_angle = cos radian;
+   quat_axis = A.Vec.scalar ~v:normal ~scale:base_sin
   }
 
-let norm {quot_axis = axis;quot_angle = angle} =
+let norm {quat_axis = axis;quat_angle = angle} =
   let module V = Algebra.Vec in
   let presquare = angle *. angle +. (V.norm_sqrt axis) in
   sqrt presquare
@@ -39,8 +39,8 @@ let normalize quat =
   (* norm should be over 0.0 *)
   if normed > 0.0 then
     let mangle = 1.0 /. normed in
-    {quot_angle = quat.quot_angle *. mangle;
-     quot_axis = V.scalar ~v:quat.quot_axis ~scale:mangle
+    {quat_angle = quat.quat_angle *. mangle;
+     quat_axis = V.scalar ~v:quat.quat_axis ~scale:mangle
     }
   else
     identity ()
@@ -53,12 +53,12 @@ let extract_vec v =
 
 let multiply first second =
   let module V = Algebra.Vec in
-  let w1 = first.quot_angle
-  and (x1, y1, z1) = extract_vec first.quot_axis
-  and w2 = second.quot_angle
-  and (x2, y2, z2) = extract_vec second.quot_axis in
-  { quot_angle = w1 *. w2 -. x1 *. x2 -. y1 *. y2 -. z1 *. z2;
-    quot_axis = let v = V.copy first.quot_axis in
+  let w1 = first.quat_angle
+  and (x1, y1, z1) = extract_vec first.quat_axis
+  and w2 = second.quat_angle
+  and (x2, y2, z2) = extract_vec second.quat_axis in
+  { quat_angle = w1 *. w2 -. x1 *. x2 -. y1 *. y2 -. z1 *. z2;
+    quat_axis = let v = V.copy first.quat_axis in
                 V.set v ~index:0 ~v:(w1 *. x2 +. x1 *. w2 +. y1 *. z2 -. z1 *. y2);
                 V.set v ~index:1 ~v:(w1 *. y2 +. y1 *. w2 +. z1 *. x2 -. x1 *. z2);
                 V.set v ~index:2 ~v:(w1 *. z2 +. z1 *. w2 +. x1 *. y2 -. y1 *. x2);
@@ -77,8 +77,8 @@ let to_mat quat =
   let module V = Algebra.Vec in
   let module M = Algebra.Mat in
   let module S = Size in
-  let w = quat.quot_angle
-  and (x, y, z) = extract_vec quat.quot_axis in
+  let w = quat.quat_angle
+  and (x, y, z) = extract_vec quat.quat_axis in
   let mat = M.make ~col:Size.four ~row:Size.four ~init:0.0 in
   M.set mat ~row:0 ~col:0 ~v:(1.0 -. (2.0 *. y *. y) -. (2.0 *. z *. z));
   M.set mat ~row:0 ~col:1 ~v:((2.0 *. x *. y) +. (2.0 *. w *. z));
@@ -100,9 +100,9 @@ let to_mat quat =
 
 (* construct dot product from q1 and q2. *)
 let dot q1 q2 =
-  let w = q1.quot_angle *. q2.quot_angle
-  and (x1, y1, z1) = extract_vec q1.quot_axis
-  and (x2, y2, z2) = extract_vec q2.quot_axis in
+  let w = q1.quat_angle *. q2.quat_angle
+  and (x1, y1, z1) = extract_vec q1.quat_axis
+  and (x2, y2, z2) = extract_vec q2.quat_axis in
   w +. (x1 *. x2) +. (y1 *. y2) +. (z1 *. z2)
 
 (* return tuple quaternions between q1 and q2.
@@ -113,7 +113,7 @@ let minimum_angle q1 q2 =
   let module V = Algebra.Vec in
   let dotted = dot q1 q2 in
   if dotted < 0.0 then
-    ({quot_angle = -.dotted; quot_axis = V.scalar ~v:q1.quot_axis ~scale:(-1.0)}, q2)
+    ({quat_angle = -.dotted; quat_axis = V.scalar ~v:q1.quat_axis ~scale:(-1.0)}, q2)
   else
     (q1, q2)
 
@@ -136,13 +136,13 @@ let slerp ~from_quat ~to_quat ~freq () =
       )
   in
   let (k0, k1) = correction_freq freq dotted in
-  let w0 = from_quat.quot_angle
-  and (x0,y0,z0) = extract_vec from_quat.quot_axis
-  and w1 = to_quat.quot_angle
-  and (x1,y1,z1) = extract_vec to_quat.quot_axis in
+  let w0 = from_quat.quat_angle
+  and (x0,y0,z0) = extract_vec from_quat.quat_axis
+  and w1 = to_quat.quat_angle
+  and (x1,y1,z1) = extract_vec to_quat.quat_axis in
   let module V = A.Vec in
-  {quot_angle = w0 *. k0 +. w1 *. k1;
-   quot_axis = let v = V.copy from_quat.quot_axis in
+  {quat_angle = w0 *. k0 +. w1 *. k1;
+   quat_axis = let v = V.copy from_quat.quat_axis in
                V.set ~index:0 ~v:(x0 *. k0 +. x1 *. k1) v;
                V.set ~index:1 ~v:(y0 *. k0 +. y1 *. k1) v;
                V.set ~index:2 ~v:(z0 *. k0 +. z1 *. k1) v;
@@ -150,10 +150,17 @@ let slerp ~from_quat ~to_quat ~freq () =
   }
 
 let to_string quat =
-  let angle = quat.quot_angle
-  and axis = quat.quot_axis in
+  let angle = quat.quat_angle
+  and axis = quat.quat_axis in
   let (x, y, z) = extract_vec axis in
   Printf.sprintf "(%f|%f %f %f)" angle x y z
 
-let angle {quot_angle;_} = quot_angle
-let axis {quot_axis;_} = quot_axis
+let angle {quat_angle;_} = 180.0 /. pi *. 2.0 *. (acos quat_angle)
+let axis {quat_axis;quat_angle} =
+  let sin_theta_sq = 1.0 -. quat_angle *. quat_angle in
+  (* if calculated sin is lesser than zero, return zero vector *)
+  if sin_theta_sq <= 0.0 then
+    (identity ()).quat_axis
+  else
+    let over_sin = 1.0 /. sqrt sin_theta_sq in
+    A.Vec.scalar ~v:quat_axis ~scale:over_sin

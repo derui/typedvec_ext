@@ -23,7 +23,7 @@ open MyOCaml
 ########################################################################
 # Phony targets are scoped, so you probably want to declare them first.
 #
-.PHONY: clean all
+.PHONY: test clean
 
 ########################################################################
 # OCaml configuration.
@@ -44,6 +44,7 @@ INSTALLED = $(BIG_ROOT)/installed
 USE_OCAMLFIND = true
 #
 OCAMLPACKS[] =
+	ppx_simplespec
 	typedvec
 #
 if $(not $(OCAMLFIND_EXISTS))
@@ -54,7 +55,7 @@ if $(not $(OCAMLFIND_EXISTS))
 #
 # Include path
 #
-OCAMLINCLUDES += 
+OCAMLINCLUDES += ../src
 
 #
 # Compile native or byte code?
@@ -62,12 +63,12 @@ OCAMLINCLUDES +=
 # The default values are defined as follows:
 #
 NATIVE_ENABLED = $(OCAMLOPT_EXISTS)
-BYTE_ENABLED = true
+BYTE_ENABLED = $(not $(OCAMLOPT_EXISTS))
 
 #
 # Various options
 #
-OCAMLFLAGS    +=
+OCAMLFLAGS    += -linkpkg -g
 OCAMLCFLAGS   +=
 OCAMLOPTFLAGS +=
 # OCAML_LINK_FLAGS +=
@@ -86,20 +87,16 @@ OCAMLOPTFLAGS +=
 # Build an OCaml program
 #
 
-# OCAML_LIBS +=
+OCAML_LIBS += ../src/typedvec_ext
 # OCAML_CLIBS +=
 # OCAML_OTHER_LIBS += nums
 # OCAML_LIB_FLAGS +=
 #
-LIB = typedvec_ext
 
-FILES[]=
-	quaternion
-	ext
-	std
+PROGRAM=test_suite
 
-MyOCamlPackage($(LIB), $(FILES), $(EMPTY), -linkall, true)
+OCamlProgram($(PROGRAM), $(removesuffix .ml, $(ls *.ml)))
 
-all: $(LIB).cmxa
+test: $(PROGRAM)
+	./$(PROGRAM)
 
-.DEFAULT: all

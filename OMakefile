@@ -98,7 +98,7 @@ OCAMLOPTFLAGS +=
 # OCAML_OTHER_LIBS += nums
 # OCAML_LIB_FLAGS +=
 #
-LIB = typedvec-ext
+LIB = typedvec_ext
 
 .DEFAULT: all
 
