@@ -17,7 +17,7 @@ let pi = 3.1415926535897232
 
 let epsilon = 0.00001
 
-let identity () = {quat_axis = A.Vec.make Size.three 0.0; quat_angle = 1.0}
+let identity = {quat_axis = A.Vec.make Size.three 0.0; quat_angle = 1.0}
 
 let make ~angle ~axis () =
   let angle = angle /. 2.0 in
@@ -43,7 +43,7 @@ let normalize quat =
      quat_axis = V.scalar ~v:quat.quat_axis ~scale:mangle
     }
   else
-    identity ()
+    identity
 
 let extract_vec v = 
   let module V = Algebra.Vec in
@@ -160,7 +160,7 @@ let axis {quat_axis;quat_angle} =
   let sin_theta_sq = 1.0 -. quat_angle *. quat_angle in
   (* if calculated sin is lesser than zero, return zero vector *)
   if sin_theta_sq <= 0.0 then
-    (identity ()).quat_axis
+    identity.quat_axis
   else
     let over_sin = 1.0 /. sqrt sin_theta_sq in
     A.Vec.scalar ~v:quat_axis ~scale:over_sin

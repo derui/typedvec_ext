@@ -21,6 +21,6 @@ let%spec "Quaternion should make a quaternion having specified angle and axis" =
   (sub 2 axis' axis) [@true]
 
 let%spec "Quaternion can return identity" =
-  let v = Q.identity () in
+  let v = Q.identity in
   (Q.axis v |> V.to_list) [@eq [0.0;0.0;0.0]];
   (Q.angle v) [@eq 0.0]

@@ -26,7 +26,7 @@ type axis = Size.three Algebra.s Algebra.vec
 type angle = float
 
 (** construct identity quaternion.*)
-val identity : unit -> t
+val identity : t
 
 (** construct a quaternion from angle of degree and rotation axis.
     if given axis is not unit vector, this function is using without
